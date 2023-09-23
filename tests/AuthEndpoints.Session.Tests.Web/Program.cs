@@ -1,13 +1,14 @@
 ﻿using AuthEndpoints.Core;
 using AuthEndpoints.MinimalApi;
-using AuthEndpoints.TokenAuth;
-using AuthEndpoints.TokenAuth.Tests.Web.Data;
+using AuthEndpoints.Session;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -21,21 +22,9 @@ builder.Services.AddDbContext<MyDbContext>(options =>
     }
 });
 
-builder.Services.AddIdentityCore<IdentityUser>(option =>
-{
-    option.User.RequireUniqueEmail = true;
-    option.Password.RequireDigit = false;
-    option.Password.RequireNonAlphanumeric = false;
-    option.Password.RequireUppercase = false;
-    option.Password.RequiredLength = 0;
-})
-.AddEntityFrameworkStores<MyDbContext>()
-.AddDefaultTokenProviders();
-
 builder.Services.AddAuthEndpointsCore<IdentityUser, MyDbContext>()
     .AddUsersApiEndpoints();
-
-builder.Services.AddTokenAuthEndpoints<IdentityUser, MyDbContext>();
+builder.Services.AddSessionEndpoints<IdentityUser>();
 
 var app = builder.Build();
 
@@ -50,6 +39,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapEndpoints();
 
